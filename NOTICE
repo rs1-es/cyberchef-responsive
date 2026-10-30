@@ -1,0 +1,9 @@
+CyberChef Responsive build script
+
+This project is not affiliated with, endorsed by or sponsored by GCHQ.
+
+It does not include any CyberChef source code. At build time it downloads the official CyberChef
+source (https://github.com/gchq/CyberChef, Copyright Crown Copyright, Apache License 2.0),
+injects the CSS and JavaScript in the assets/ folder into its page template and builds it.
+The resulting site is a modified version of CyberChef and stays under the Apache License 2.0;
+it announces that it is modified in its "Download CyberChef" and "About / Support" dialogs.

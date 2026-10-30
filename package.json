@@ -1,0 +1,14 @@
+{
+  "name": "cyberchef-responsive",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Builds a responsive (mobile friendly) version of CyberChef and deploys it to S3",
+  "license": "Apache-2.0",
+  "scripts": {
+    "lint": "bash -n cyberchef-responsive.sh && node --check assets/mobile.js && node --check assets/patch-html.js",
+    "test": "node tests/smoke.js"
+  },
+  "devDependencies": {
+    "playwright": "^1.50.0"
+  }
+}

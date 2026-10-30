@@ -1,0 +1,10 @@
+# Build output and working copies (CyberChef clone, node_modules, build/prod...)
+cyberchef-responsive-build/
+cyberchef-mobile-build/
+
+# Test dependencies
+node_modules/
+
+# Editor / OS
+.DS_Store
+*.swp

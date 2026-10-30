@@ -1,0 +1,136 @@
+/* ===== CyberChef responsive layer ===== */
+/*
+ * Layout rules hang off body.cc-mobile (narrow viewport, set by mobile.js).
+ * Interaction rules hang off body.cc-touch (coarse pointer, set by mobile.js).
+ * On a wide screen with a mouse nothing here changes the original UI.
+ * The classes live on <body> because CyberChef overwrites <html>.className when it applies a theme.
+ */
+#cc-m-tabs { display: none; }
+
+body.cc-mobile { --cc-m-bar: 58px; overflow: hidden; }
+body.cc-touch { touch-action: manipulation; }
+
+/* Bottom tab bar */
+body.cc-mobile #cc-m-tabs {
+  display: flex;
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 1000;
+  box-sizing: border-box;
+  height: calc(var(--cc-m-bar) + env(safe-area-inset-bottom, 0px));
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  background: var(--banner-bg-colour, #dff0d8);
+  border-top: 1px solid var(--primary-border-colour, #ccc);
+}
+body.cc-mobile .cc-m-tab {
+  flex: 1 1 0; min-width: 0; position: relative;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  padding: 4px 2px; border: 0; background: transparent;
+  color: var(--banner-font-colour, var(--primary-font-colour, #333));
+  font-size: 11px; line-height: 1.1; opacity: .65; cursor: pointer;
+}
+body.cc-mobile .cc-m-tab .material-icons { font-size: 22px; }
+body.cc-mobile .cc-m-tab.active { opacity: 1; font-weight: 600; box-shadow: inset 0 3px 0 currentColor; }
+body.cc-mobile .cc-m-tab:focus-visible { outline: 2px solid currentColor; outline-offset: -4px; }
+body.cc-mobile .cc-m-badge {
+  position: absolute; top: 4px; left: calc(50% + 6px);
+  min-width: 18px; height: 18px; padding: 0 5px; box-sizing: border-box;
+  border-radius: 9px; background: #d9534f; color: #fff;
+  font-size: 11px; line-height: 18px; text-align: center;
+}
+
+/* Split.js gutters are not used */
+body.cc-mobile .gutter { display: none !important; }
+
+/* Each pane fills the screen between the banner and the tab bar */
+body.cc-mobile #operations,
+body.cc-mobile #recipe,
+body.cc-mobile #IO {
+  position: fixed !important;
+  top: var(--cc-m-top, 40px); left: 0; right: 0;
+  bottom: calc(var(--cc-m-bar) + env(safe-area-inset-bottom, 0px));
+  width: auto !important; height: auto !important;
+  float: none !important; margin: 0 !important;
+  display: none;
+}
+body.cc-mobile.cc-m-show-operations #operations,
+body.cc-mobile.cc-m-show-recipe #recipe,
+body.cc-mobile.cc-m-show-input #IO,
+body.cc-mobile.cc-m-show-output #IO { display: block; }
+
+/* Input and output: one at a time, full screen */
+body.cc-mobile #input,
+body.cc-mobile #output { width: 100% !important; height: 100% !important; display: none; }
+body.cc-mobile.cc-m-show-input #input,
+body.cc-mobile.cc-m-show-output #output { display: block; }
+
+/* Single-line banner. Bootstrap stacks it into 3 rows below 768px and only the first one would be
+   visible in the fixed 30px height. The central notice is hidden to make room. */
+body.cc-mobile #banner {
+  flex-wrap: nowrap; justify-content: space-between; align-items: flex-start;
+  overflow: hidden; white-space: nowrap; font-size: 12px;
+}
+body.cc-mobile #banner > .col,
+body.cc-mobile #banner > .col-md-6 {
+  flex: 0 0 auto; width: auto; max-width: none; padding-left: 8px !important; padding-right: 8px !important;
+  display: flex; align-items: center; height: 30px;
+}
+body.cc-mobile #banner #notice-wrapper { display: none; }
+body.cc-mobile #banner a {
+  display: inline-flex; align-items: center; height: 30px; padding: 0 4px;  /* touch target = banner height */
+}
+body.cc-mobile #banner i { padding-right: 0; padding-left: 3px; }
+body.cc-mobile #banner #options { margin-left: 6px; }
+body.cc-mobile #banner #support { font-size: 0; }          /* icon only, saves width */
+body.cc-mobile #banner #support i { font-size: 20px; }
+
+/* Bigger touch targets */
+body.cc-mobile .op-list li.operation { padding-top: 10px; padding-bottom: 10px; }
+body.cc-mobile .btn { min-height: 38px; }
+
+/* Prevent iOS from zooming in when a field is focused */
+body.cc-mobile input,
+body.cc-mobile select,
+body.cc-mobile textarea { font-size: 16px; }
+
+/* Modal dialogs (options, help, favourites...) */
+body.cc-mobile .modal-dialog { max-width: calc(100vw - 16px) !important; margin: 8px auto !important; }
+body.cc-mobile .modal-body { max-height: calc(100vh - 170px); overflow-y: auto; }
+
+/* Keep the Bake button on a single line */
+body.cc-mobile #bake { white-space: nowrap; padding-left: 10px; padding-right: 10px; }
+
+/* Help popovers need hover (touch) or room (narrow screen), and cover the lists otherwise */
+body.cc-touch .popover,
+body.cc-mobile .popover { display: none !important; }
+
+/* With a coarse pointer drag and drop is replaced by taps and buttons */
+body.cc-touch #operations li.operation,
+body.cc-touch #rec-list li.operation {
+  -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; -webkit-user-drag: none;
+}
+
+/* Move up / move down / remove buttons on each recipe operation */
+.cc-m-ops { display: none; }
+body.cc-touch .cc-m-ops {
+  display: flex; justify-content: flex-end; gap: 6px; clear: both; padding: 2px 4px 6px;
+}
+body.cc-touch .cc-m-op-btn { min-width: 44px; min-height: 40px; padding: 0 8px; margin: 0; line-height: 1; }
+body.cc-touch .cc-m-op-btn i { font-size: 22px; vertical-align: middle; }
+
+/* Visual feedback when an operation is added with a tap */
+body.cc-touch li.operation.cc-m-added { animation: cc-m-added .6s ease-out; }
+@keyframes cc-m-added { from { background-color: rgba(92, 184, 92, .45); } }
+@media (prefers-reduced-motion: reduce) {
+  body.cc-touch li.operation.cc-m-added { animation: none; }
+}
+
+/* "Added: <operation>" message */
+#cc-m-toast {
+  position: fixed; z-index: 1100; left: 50%; transform: translateX(-50%);
+  bottom: calc(var(--cc-m-bar, 58px) + env(safe-area-inset-bottom, 0px) + 12px);
+  max-width: calc(100vw - 32px); box-sizing: border-box;
+  padding: 8px 16px; border-radius: 18px; background: rgba(0, 0, 0, .82); color: #fff;
+  font-size: 14px; line-height: 1.3; text-align: center; pointer-events: none;
+  opacity: 0; transition: opacity .2s;
+}
+#cc-m-toast.show { opacity: 1; }
+@media (prefers-reduced-motion: reduce) { #cc-m-toast { transition: none; } }
