@@ -18,6 +18,8 @@ The original CyberChef is a three-column desktop layout driven by drag and drop.
 - **Touch interaction** (devices whose main pointer is coarse, whatever the screen width): a single tap on an
   operation adds it to the recipe, and each recipe step gets *move up / move down / remove* buttons. Drag and
   drop and native double-tap are turned off in that case because they fight with scrolling.
+  Since the hover popover with each operation's description cannot be used on touch, every operation has an
+  info icon that opens its description in a bottom sheet (also available from each recipe step).
 - **Mouse interaction is untouched**: on a desktop, even in a narrow window, double click and drag and drop
   work exactly as in the original.
 - A different **page title** (default `CyberChef Responsive`, also kept when CyberChef updates it as the recipe

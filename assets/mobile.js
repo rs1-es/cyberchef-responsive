@@ -21,6 +21,7 @@
     { id: "output",     label: "Output",     icon: "output" }
   ];
   var RECIPE_BUTTONS = [
+    { act: "info", icon: "info_outline",        label: "Description" },
     { act: "up",   icon: "keyboard_arrow_up",   label: "Move up" },
     { act: "down", icon: "keyboard_arrow_down", label: "Move down" },
     { act: "del",  icon: "delete",              label: "Remove" }
@@ -28,6 +29,8 @@
   var current = "input";
   var bar = null;
   var toastEl = null, toastTimer = null;
+  var infoEl = null, infoReturnFocus = null, opDescriptions = null;
+  var INFO_ZONE = 48; /* px at the right edge of an operation row that open its description (matches the CSS icon) */
   var refreshTimer = null;
 
   function isMobile() { return root.classList.contains("cc-mobile"); }
@@ -154,6 +157,81 @@
     li.appendChild(box);
   }
 
+  /* ---- Operation description (the popover CyberChef shows on hover) ---- */
+
+  /* Operations in the recipe are created from the name only, so their description is looked up
+     by name in the category lists, which hold every operation with its description in data-content. */
+  function descriptionFor(name) {
+    if (!opDescriptions) {
+      opDescriptions = {};
+      Array.prototype.forEach.call(document.querySelectorAll("#categories li.operation"), function (li) {
+        var d = li.getAttribute("data-content"), n = li.textContent.trim();
+        if (d && !Object.prototype.hasOwnProperty.call(opDescriptions, n)) opDescriptions[n] = d;
+      });
+    }
+    return Object.prototype.hasOwnProperty.call(opDescriptions, name) ? opDescriptions[name] : null;
+  }
+
+  function buildInfo() {
+    infoEl = document.createElement("div");
+    infoEl.id = "cc-m-info";
+    infoEl.setAttribute("role", "dialog");
+    infoEl.setAttribute("aria-modal", "true");
+    infoEl.setAttribute("aria-labelledby", "cc-m-info-title");
+    var backdrop = document.createElement("div");
+    backdrop.className = "cc-m-info-backdrop";
+    var sheet = document.createElement("div");
+    sheet.className = "cc-m-info-sheet";
+    var head = document.createElement("div");
+    head.className = "cc-m-info-head";
+    var h = document.createElement("h5");
+    h.id = "cc-m-info-title";
+    var close = document.createElement("button");
+    close.type = "button";
+    close.className = "btn btn-sm cc-m-info-close";
+    close.setAttribute("aria-label", "Close");
+    var ci = document.createElement("i");
+    ci.className = "material-icons";
+    ci.setAttribute("aria-hidden", "true");
+    ci.textContent = "close";
+    close.appendChild(ci);
+    var body = document.createElement("div");
+    body.className = "cc-m-info-body";
+    head.appendChild(h);
+    head.appendChild(close);
+    sheet.appendChild(head);
+    sheet.appendChild(body);
+    infoEl.appendChild(backdrop);
+    infoEl.appendChild(sheet);
+    document.body.appendChild(infoEl);
+    backdrop.addEventListener("click", hideInfo);
+    close.addEventListener("click", hideInfo);
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && infoEl.classList.contains("show")) hideInfo();
+    });
+  }
+
+  function showInfo(name) {
+    if (!infoEl) buildInfo();
+    var desc = descriptionFor(name);
+    infoEl.querySelector("#cc-m-info-title").textContent = name;
+    var body = infoEl.querySelector(".cc-m-info-body");
+    /* The text comes from CyberChef's own bundled operation descriptions (what its popover renders) */
+    if (desc) body.innerHTML = desc;
+    else body.textContent = "No description available.";
+    body.scrollTop = 0;
+    infoReturnFocus = document.activeElement;
+    infoEl.classList.add("show");
+    infoEl.querySelector(".cc-m-info-close").focus();
+  }
+
+  function hideInfo() {
+    if (!infoEl) return;
+    infoEl.classList.remove("show");
+    if (infoReturnFocus && infoReturnFocus.focus) infoReturnFocus.focus();
+    infoReturnFocus = null;
+  }
+
   function setupRecipeControls(list) {
     Array.prototype.forEach.call(list.children, decorateRecipeItem);
     list.addEventListener("click", function (e) {
@@ -161,6 +239,11 @@
       if (!btn) return;
       var li = btn.closest("li.operation");
       var act = btn.getAttribute("data-act");
+      if (act === "info") {
+        var title = li.querySelector(".op-title");
+        showInfo(title ? title.textContent : li.textContent.trim());
+        return;
+      }
       if (act === "up" && li.previousElementSibling) list.insertBefore(li, li.previousElementSibling);
       else if (act === "down" && li.nextElementSibling) list.insertBefore(li.nextElementSibling, li);
       else if (act === "del") li.remove();
@@ -177,6 +260,13 @@
       if (!isTouch() || !e.target.closest) return;
       var li = e.target.closest("#operations li.operation");
       if (!li) return;
+      /* The icon at the right edge of the row opens the description instead of adding the operation */
+      if (e.clientX >= li.getBoundingClientRect().right - INFO_ZONE) {
+        e.preventDefault();
+        e.stopPropagation();
+        showInfo(li.textContent.trim());
+        return;
+      }
       li.dispatchEvent(new MouseEvent("dblclick", { bubbles: true, cancelable: true, view: window }));
       li.classList.remove("cc-m-added");
       void li.offsetWidth;

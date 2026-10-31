@@ -87,6 +87,16 @@ async function touchScroll(ctx, page, x, y0, y1) {
     check("swiping does not add operations", (await recipeLen(page)) === 0);
     await page.evaluate(() => { document.getElementById("operations").scrollTop = 0; });
 
+    const box = await page.locator(FIRST_OP).first().boundingBox();
+    await page.touchscreen.tap(box.x + box.width - 20, box.y + box.height / 2);
+    await page.waitForTimeout(400);
+    check("tapping the info icon opens the description", await page.isVisible("#cc-m-info"));
+    check("the description is the operation's", /Base64/.test(await page.locator("#cc-m-info").textContent()));
+    check("opening the description does not add the operation", (await recipeLen(page)) === 0, await recipeLen(page));
+    await page.tap(".cc-m-info-close");
+    await page.waitForTimeout(300);
+    check("the close button closes the description", !(await page.isVisible("#cc-m-info")));
+
     await page.tap(FIRST_OP + " >> nth=0");
     await page.waitForTimeout(500);
     check("a single tap adds one operation", (await recipeLen(page)) === 1, await recipeLen(page));
@@ -101,6 +111,12 @@ async function touchScroll(ctx, page, x, y0, y1) {
 
     await page.tap('.cc-m-tab[data-tab="recipe"]');
     await page.waitForTimeout(500);
+    await page.tap("#rec-list li.operation:nth-child(1) .cc-m-op-btn[data-act=info]");
+    await page.waitForTimeout(400);
+    check("a recipe step's info button opens its description", /Base64/.test(await page.locator("#cc-m-info").textContent()));
+    await page.keyboard.press("Escape");
+    await page.waitForTimeout(300);
+    check("Escape closes the description", !(await page.isVisible("#cc-m-info")));
     const before = await recipeNames(page);
     await page.tap("#rec-list li.operation:nth-child(1) .cc-m-op-btn[data-act=down]");
     await page.waitForTimeout(300);
