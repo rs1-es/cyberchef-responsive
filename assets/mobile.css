@@ -5,6 +5,15 @@
  * On a wide screen with a mouse nothing here changes the original UI.
  * The classes live on <body> because CyberChef overwrites <html>.className when it applies a theme.
  */
+/* Loading screen. Before the layer's JavaScript runs, CyberChef's preloader has fixed-width elements (a 400px
+   message, a 600px error box) that make mobile browsers widen the layout viewport, so the spinner was centred
+   in a page wider than the visible one. The wrapper clips them and they shrink on narrow screens. */
+#loader-wrapper { overflow: hidden; }
+@media (max-width: 640px) {
+  #loader-wrapper .loading-msg,
+  #loader-wrapper .loading-error { width: calc(100% - 32px); left: 16px; }
+}
+
 #cc-m-tabs { display: none; }
 
 body.cc-mobile { --cc-m-bar: 58px; overflow: hidden; }

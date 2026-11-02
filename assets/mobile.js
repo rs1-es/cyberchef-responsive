@@ -312,6 +312,9 @@
     watchTitle();
     applyTouch();
     apply();
+    /* CyberChef's own styles may arrive after this runs: keep the panes below the banner whatever its final height */
+    var banner = document.getElementById("banner");
+    if (banner && window.ResizeObserver) new ResizeObserver(updateTop).observe(banner);
     if (mq.addEventListener) { mq.addEventListener("change", apply); tq.addEventListener("change", applyTouch); }
     else if (mq.addListener) { mq.addListener(apply); tq.addListener(applyTouch); }
     window.addEventListener("resize", updateTop);
@@ -340,6 +343,9 @@
     }, true);
   }
 
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
-  else init();
+  /* This script sits at the end of <body>, so the markup it needs is already parsed. Running right away,
+     instead of on DOMContentLoaded (which waits for CyberChef's large bundle), applies the layout while the
+     loading screen is still up. Until then a wide desktop layout makes mobile browsers widen the viewport
+     and the loading spinner shows off-centre. */
+  init();
 })();

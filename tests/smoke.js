@@ -57,6 +57,7 @@ async function open(browser, url, opts) {
 }
 
 async function touchScroll(ctx, page, x, y0, y1) {
+  await page.waitForTimeout(800);  // let the layout settle: a swipe right after a tab change is sometimes taken as a tap
   const cdp = await ctx.newCDPSession(page);
   await cdp.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [{ x, y: y0 }] });
   for (let y = y0; y >= y1; y -= 20) {
