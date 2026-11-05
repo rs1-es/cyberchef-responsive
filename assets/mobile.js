@@ -343,9 +343,52 @@
     }, true);
   }
 
+  /* "Show on map" builds a Leaflet map as soon as leaflet.js arrives, even if the pane holding it is hidden
+     (display: none, size 0x0) because another tab is open. Leaflet then centres the map on the top-left corner
+     and never recovers, and it also keeps its top-left corner fixed when the pane is resized later (rotating
+     the phone). Keep every map centred: remember it when it is created and, whenever its container changes
+     size, recompute the size and restore the centre. The map objects are not exposed by CyberChef, so they are
+     collected through an init hook as soon as the Leaflet library defines window.L. */
+  function keepMapsCentred() {
+    var real;
+    function track(L) {
+      if (!L || !L.Map || !L.Map.addInitHook || L.__ccTracked) return;
+      L.__ccTracked = true;
+      L.Map.addInitHook(function () {
+        var map = this, center = null, zoom = null;
+        function remember() {
+          var s = map.getSize();
+          if (s.x > 0 && s.y > 0) { center = map.getCenter(); zoom = map.getZoom(); }
+        }
+        map.whenReady(function () {
+          /* the hidden case: the map was created with size 0, so take the centre from the view it was given */
+          center = map._lastCenter || map.getCenter(); zoom = map.getZoom();
+          map.on("moveend zoomend", remember);
+          if (window.ResizeObserver) {
+            new ResizeObserver(function () {
+              var el = map.getContainer();
+              if (!el.offsetWidth || !el.offsetHeight || !center) return;
+              map.invalidateSize({ animate: false });
+              map.setView(center, zoom, { animate: false });
+              if (map._popup && map._popup.update) map._popup.update();  /* re-anchor an open popup */
+            }).observe(map.getContainer());
+          }
+        });
+      });
+    }
+    try {
+      Object.defineProperty(window, "L", {
+        configurable: true,
+        get: function () { return real; },
+        set: function (v) { real = v; track(v); }
+      });
+    } catch (e) { /* if window.L cannot be intercepted the maps just behave as in the original */ }
+  }
+
   /* This script sits at the end of <body>, so the markup it needs is already parsed. Running right away,
      instead of on DOMContentLoaded (which waits for CyberChef's large bundle), applies the layout while the
      loading screen is still up. Until then a wide desktop layout makes mobile browsers widen the viewport
      and the loading spinner shows off-centre. */
+  keepMapsCentred();
   init();
 })();
