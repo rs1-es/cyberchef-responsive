@@ -49,7 +49,9 @@ body.cc-mobile .cc-m-badge {
 /* Split.js gutters are not used */
 body.cc-mobile .gutter { display: none !important; }
 
-/* Each pane fills the screen between the banner and the tab bar */
+/* Each pane fills the screen between the banner and the tab bar. Inactive panes are hidden with visibility, not
+   display: none, so they keep their layout and their images stay decoded (otherwise the Bake! icon and other
+   images pop in again each time the tab is opened). */
 body.cc-mobile #operations,
 body.cc-mobile #recipe,
 body.cc-mobile #IO {
@@ -58,12 +60,12 @@ body.cc-mobile #IO {
   bottom: calc(var(--cc-m-bar) + env(safe-area-inset-bottom, 0px));
   width: auto !important; height: auto !important;
   float: none !important; margin: 0 !important;
-  display: none;
+  visibility: hidden; pointer-events: none;
 }
 body.cc-mobile.cc-m-show-operations #operations,
 body.cc-mobile.cc-m-show-recipe #recipe,
 body.cc-mobile.cc-m-show-input #IO,
-body.cc-mobile.cc-m-show-output #IO { display: block; }
+body.cc-mobile.cc-m-show-output #IO { visibility: visible; pointer-events: auto; }
 
 /* Input and output: one at a time, full screen */
 body.cc-mobile #input,
