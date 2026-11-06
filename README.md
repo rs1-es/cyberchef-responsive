@@ -30,6 +30,20 @@ desktop layout but gets tap-to-add, and a narrow desktop window gets the tab bar
 
 The UI is English only, like the original.
 
+## Screenshots
+
+On a phone (390 px wide): the operation list with its info icons, an operation's description, the recipe with its
+step buttons and the output. Each pane takes the whole screen and the bottom tab bar switches between them.
+
+<table>
+  <tr>
+    <td><img src="docs/screenshots/operations.png" alt="Operations tab with info icons" width="200"></td>
+    <td><img src="docs/screenshots/description.png" alt="Operation description in a bottom sheet" width="200"></td>
+    <td><img src="docs/screenshots/recipe.png" alt="Recipe tab with move and remove buttons" width="200"></td>
+    <td><img src="docs/screenshots/output.png" alt="Output tab" width="200"></td>
+  </tr>
+</table>
+
 ## Requirements
 
 - `bash`, `git`, `node` and `npm` (CyberChef's `.nvmrc` is honoured if you use [nvm](https://github.com/nvm-sh/nvm))
